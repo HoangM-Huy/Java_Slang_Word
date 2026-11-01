@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import javax.swing.*;
 import view.components.*;
+import view.panels.*;
 
 public class MainFrame extends JFrame {
     private JPanel mainContainer;
@@ -22,6 +23,8 @@ public class MainFrame extends JFrame {
     private void initializeComponents() {
        cardLayout = new CardLayout();
        mainContainer = new JPanel(cardLayout);
+
+       mainContainer.add(new FindSlangPanel(), "FINDSLANG");
     }
 
     private void setupLayout() {

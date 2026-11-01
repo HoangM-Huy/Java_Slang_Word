@@ -19,8 +19,8 @@ public class SidebarPanel extends JPanel {
         JButton slangQuiz = new JButton("Slang word quiz");
         JButton defQuiz = new JButton("Definition quiz");
 
-        findSlang.addActionListener(e -> navigationHandler.accept("SEARCHBYSLANGWORD"));
-        findDef.addActionListener(e -> navigationHandler.accept("SEARCHBYDEFINITION"));
+        findSlang.addActionListener(e -> navigationHandler.accept("FINDSLANG"));
+        findDef.addActionListener(e -> navigationHandler.accept("FINDDEF"));
         history.addActionListener(e -> navigationHandler.accept("HISTORY"));
         addSlang.addActionListener(e -> navigationHandler.accept("ADDSLANG"));
         editSlang.addActionListener(e -> navigationHandler.accept("EDITSLANG"));
