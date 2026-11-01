@@ -1,7 +1,6 @@
 package view;
 
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
+import java.awt.*;
 import javax.swing.*;
 import view.components.*;
 import view.panels.*;
@@ -25,13 +24,14 @@ public class MainFrame extends JFrame {
        mainContainer = new JPanel(cardLayout);
 
        mainContainer.add(new FindSlangPanel(), "FINDSLANG");
+       mainContainer.add(new FindDefinitionPanel(), "FINDDEF");
     }
 
     private void setupLayout() {
         setLayout(new BorderLayout());
         HeaderPanel header = new HeaderPanel();
         SidebarPanel sidebar = new SidebarPanel(this::navigateTo);
-
+        
         add(header, BorderLayout.NORTH);
         add(sidebar, BorderLayout.WEST);
         add(mainContainer, BorderLayout.CENTER);

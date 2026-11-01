@@ -7,8 +7,7 @@ import javax.swing.*;
 
 public class SidebarPanel extends JPanel {
     public SidebarPanel(Consumer<String> navigationHandler) {
-        setLayout(new GridLayout(8, 1, 5, 5));
-        setPreferredSize(new Dimension(180, 0));
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         JButton findSlang = new JButton("Search by slang word");
         JButton findDef = new JButton("Search by definition");
@@ -28,13 +27,19 @@ public class SidebarPanel extends JPanel {
         slangQuiz.addActionListener(e -> navigationHandler.accept("SLANGQUIZ"));
         defQuiz.addActionListener(e -> navigationHandler.accept("DEFQUIZ"));
 
-        add(findSlang);
-        add(findDef);
-        add(history);
-        add(addSlang);
-        add(editSlang);
-        add(randomSlang);
-        add(slangQuiz);
-        add(defQuiz);
+        JPanel buttonContainer = new JPanel(new GridLayout(8, 1, 5, 5));
+        buttonContainer.setPreferredSize(new Dimension(180, 0));
+        buttonContainer.add(findSlang);
+        buttonContainer.add(findDef);
+        buttonContainer.add(history);
+        buttonContainer.add(addSlang);
+        buttonContainer.add(editSlang);
+        buttonContainer.add(randomSlang);
+        buttonContainer.add(slangQuiz);
+        buttonContainer.add(defQuiz);
+
+        JScrollPane scrollPane = new JScrollPane(buttonContainer);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        add(scrollPane);
     }
 }
