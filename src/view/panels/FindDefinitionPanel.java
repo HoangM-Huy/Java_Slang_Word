@@ -17,8 +17,8 @@ public class FindDefinitionPanel extends JPanel{
 
         inputPanel.add(new JLabel("Definition:"));
         inputPanel.add(definitionInput);
-        inputPanel.add(new JLabel("Slang:"));
-        inputPanel.add(slangOutput);
+        // inputPanel.add(new JLabel("Slang:"));
+        // inputPanel.add(slangOutput);
         inputPanel.add(searchButton);
 
         add(inputPanel, BorderLayout.CENTER);
