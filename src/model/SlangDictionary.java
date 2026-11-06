@@ -53,9 +53,11 @@ public class SlangDictionary {
                     currentSlangWord = slangWord.isEmpty() ? null : slangWord;
                     if (currentSlangWord != null) {
                         addEntry(currentSlangWord, line.substring(delimiterIndex + 1).trim());
+                        //System.out.println("Load slang word: " + currentSlangWord + " with definition: " + line.substring(delimiterIndex + 1).trim());
                     }
                 } else if (currentSlangWord != null) {
                     addEntry(currentSlangWord, line.trim());
+                    //System.out.println("Load additional definition for slang word: " + currentSlangWord + " with definition: " + line.trim());
                 }
             }
         } catch (Exception e) {

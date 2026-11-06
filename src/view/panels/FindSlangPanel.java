@@ -1,6 +1,6 @@
 package view.panels;
-
 import java.awt.*;
+import java.awt.event.ActionListener;
 import javax.swing.*;
 
 public class FindSlangPanel extends JPanel {
@@ -22,6 +22,15 @@ public class FindSlangPanel extends JPanel {
         inputPanel.add(slangInput);
         inputPanel.add(searchButton);
 
+        JPanel inputContainer = new JPanel();
+        inputContainer.setLayout(new BoxLayout(inputContainer, BoxLayout.Y_AXIS));
+
+        JLabel inputHeader = new JLabel("Find Slang Word");
+        inputHeader.setFont(new Font("Arial", Font.BOLD, 16));
+        inputHeader.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        inputContainer.add(inputHeader);
+        inputContainer.add(inputPanel);
+
         resultArea = new JTextArea();
         resultArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(resultArea);
@@ -39,7 +48,7 @@ public class FindSlangPanel extends JPanel {
         resultsPanel.add(resultsLabel, BorderLayout.NORTH);
         resultsPanel.add(scrollPane, BorderLayout.CENTER);
         
-        add(inputPanel, BorderLayout.NORTH);
+        add(inputContainer, BorderLayout.NORTH);
         add(resultsPanel, BorderLayout.CENTER);
     }
 
@@ -53,5 +62,17 @@ public class FindSlangPanel extends JPanel {
 
     public JTextArea getResultArea() {
         return resultArea;
+    }
+
+    public void setSearchListener(ActionListener listener) {
+        searchButton.addActionListener(listener);
+    }
+
+    public String getSearchInput() {
+        return slangInput.getText().trim();
+    }
+
+    public void showResult(String result) {
+        resultArea.setText(result);
     }
 }

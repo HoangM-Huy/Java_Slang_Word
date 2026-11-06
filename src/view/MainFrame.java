@@ -1,5 +1,6 @@
 package view;
 
+import controller.*;
 import java.awt.*;
 import javax.swing.*;
 import view.components.*;
@@ -23,17 +24,23 @@ public class MainFrame extends JFrame {
        cardLayout = new CardLayout();
        mainContainer = new JPanel(cardLayout);
 
-       mainContainer.add(new FindSlangPanel(), "FINDSLANG");
-       mainContainer.add(new FindDefinitionPanel(), "FINDDEF");
+       FindSlangPanel findSlangPanel = new FindSlangPanel();
+       FindDefinitionPanel findDefinitionPanel = new FindDefinitionPanel();
+
+       mainContainer.add(findSlangPanel, "FINDSLANG");
+       mainContainer.add(findDefinitionPanel, "FINDDEF");
+
+       AppController controller = new AppController(findSlangPanel, findDefinitionPanel); 
     }
 
     private void setupLayout() {
         setLayout(new BorderLayout());
         HeaderPanel header = new HeaderPanel();
         SidebarPanel sidebar = new SidebarPanel(this::navigateTo);
-        
+        DictionaryPanel dictionary = new DictionaryPanel(mainContainer);
         add(header, BorderLayout.NORTH);
         add(sidebar, BorderLayout.WEST);
+        add(dictionary, BorderLayout.EAST);
         add(mainContainer, BorderLayout.CENTER);
     }
 
