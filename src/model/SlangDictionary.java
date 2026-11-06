@@ -25,6 +25,17 @@ public class SlangDictionary {
         return definitions == null ? null : String.join("; ", definitions);
     }
 
+    public static String getSlangByDefinition(String definition) {
+        for (Map.Entry<String, List<String>> entry : slangEntries.entrySet()) {
+            for (String def : entry.getValue()) {
+                if (def.equalsIgnoreCase(definition)) {
+                    return entry.getKey();
+                }
+            }
+        }
+        return null;
+    }
+
     public static List<String> getDefinitions(String slangWord) {
         List<String> definitions = slangEntries.get(slangWord);
         return definitions == null ? Collections.emptyList() : Collections.unmodifiableList(definitions);

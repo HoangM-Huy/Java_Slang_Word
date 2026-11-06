@@ -34,9 +34,12 @@ public class AppController {
     private void handleFindDefinition() {
         String definition = findDefinitionPanel.getDefinitionInput().getText().trim();
         if (!definition.isEmpty()) {
-            // Implement logic to find slang words by definition
-            // For now, just display a placeholder message
-            findDefinitionPanel.getSlangOutput().setText("Search functionality not implemented yet.");
+            String slangWord = model.SlangDictionary.getSlangByDefinition(definition);
+            if (slangWord != null) {
+                findDefinitionPanel.setSlangOutput(slangWord);
+            } else {
+                findDefinitionPanel.setSlangOutput("No slang word found for the given definition.");
+            }
         }
     }
 }

@@ -9,6 +9,7 @@ import view.panels.*;
 public class MainFrame extends JFrame {
     private JPanel mainContainer;
     private CardLayout cardLayout;
+    private AppController controller;
 
     public MainFrame() {
         setTitle("Slang Dictionary");
@@ -30,7 +31,7 @@ public class MainFrame extends JFrame {
        mainContainer.add(findSlangPanel, "FINDSLANG");
        mainContainer.add(findDefinitionPanel, "FINDDEF");
 
-       AppController controller = new AppController(findSlangPanel, findDefinitionPanel); 
+       controller = new AppController(findSlangPanel, findDefinitionPanel); 
     }
 
     private void setupLayout() {

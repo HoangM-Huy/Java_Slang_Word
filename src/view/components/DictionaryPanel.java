@@ -1,19 +1,22 @@
 package view.components;
+import java.awt.*;
 import javax.swing.*;
 import model.*;
-import java.awt.*;
-import javax.swing.border.Border;
 
 public class DictionaryPanel extends JPanel {
 
     public DictionaryPanel(JPanel contentPanel) {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        
         JPanel DictionaryHeader = new JPanel();
         DictionaryHeader.setLayout(new FlowLayout(FlowLayout.CENTER));
+        
         JLabel headerLabel = new JLabel("Dictionary");
         headerLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        
         add(Box.createRigidArea(new Dimension(0, 10)));
         DictionaryHeader.add(headerLabel);
+        
         add(DictionaryHeader);
         loadEntries();
     }
