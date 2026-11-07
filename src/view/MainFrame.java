@@ -27,11 +27,14 @@ public class MainFrame extends JFrame {
 
        FindSlangPanel findSlangPanel = new FindSlangPanel();
        FindDefinitionPanel findDefinitionPanel = new FindDefinitionPanel();
+       HistoryPanel historyPanel = new HistoryPanel();
 
        mainContainer.add(findSlangPanel, "FINDSLANG");
        mainContainer.add(findDefinitionPanel, "FINDDEF");
+       mainContainer.add(historyPanel, "HISTORY");
 
-       controller = new AppController(findSlangPanel, findDefinitionPanel); 
+       historyPanel.loadHistoryFromFile();
+       controller = new AppController(findSlangPanel, findDefinitionPanel, historyPanel); 
     }
 
     private void setupLayout() {

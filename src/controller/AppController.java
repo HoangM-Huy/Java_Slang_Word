@@ -4,19 +4,23 @@ import view.panels.*;
 public class AppController {
     private FindSlangPanel findSlangPanel;
     private FindDefinitionPanel findDefinitionPanel;
+    private HistoryPanel historyPanel;
 
     public AppController(
         FindSlangPanel findSlangPanel, 
-        FindDefinitionPanel findDefinitionPanel) 
+        FindDefinitionPanel findDefinitionPanel, 
+        HistoryPanel historyPanel) 
     {
         this.findSlangPanel = findSlangPanel;
         this.findDefinitionPanel = findDefinitionPanel;
+        this.historyPanel = historyPanel;
         initializeListeners();
     }
 
     private void initializeListeners() {
         findSlangPanel.getSearchButton().addActionListener(e -> handleFindSlang());
         findDefinitionPanel.getSearchButton().addActionListener(e -> handleFindDefinition());
+        historyPanel.setDeleteHistoryListener(e -> clearHistory());
     }
 
     private void handleFindSlang() {
@@ -25,6 +29,7 @@ public class AppController {
             String definition = model.SlangDictionary.getDefinition(slangWord);
             if (definition != null) {
                 findSlangPanel.getResultArea().setText(definition);
+                addHistory(slangWord + " : " + definition);
             } else {
                 findSlangPanel.getResultArea().setText("No definition found for: " + slangWord);
             }
@@ -37,9 +42,20 @@ public class AppController {
             String slangWord = model.SlangDictionary.getSlangByDefinition(definition);
             if (slangWord != null) {
                 findDefinitionPanel.setSlangOutput(slangWord);
+                addHistory(slangWord + " : " + definition);
             } else {
-                findDefinitionPanel.setSlangOutput("No slang word found for the given definition.");
+                findDefinitionPanel.setSlangOutput("No slang word found.");
             }
         }
+    }
+
+    private void addHistory(String query) {
+        model.History.addToHistory(query);
+        historyPanel.addHistory(query);
+    }
+
+    private void clearHistory() {
+        model.History.clearHistory();
+        historyPanel.setHistory(new String[0]);
     }
 }
