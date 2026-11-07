@@ -1,19 +1,31 @@
 package controller;
+import javax.swing.JOptionPane;
+import model.SlangDictionary;
+import view.components.*;
 import view.panels.*;
 
 public class AppController {
     private FindSlangPanel findSlangPanel;
     private FindDefinitionPanel findDefinitionPanel;
     private HistoryPanel historyPanel;
+    private AddSlangPanel addSlangPanel;
+    private DictionaryPanel dictionaryPanel;
+    private EditSlangPanel editSlangPanel;
 
     public AppController(
         FindSlangPanel findSlangPanel, 
         FindDefinitionPanel findDefinitionPanel, 
-        HistoryPanel historyPanel) 
+        HistoryPanel historyPanel, 
+        AddSlangPanel addSlangPanel, 
+        DictionaryPanel dictionaryPanel, 
+        EditSlangPanel editSlangPanel) 
     {
         this.findSlangPanel = findSlangPanel;
         this.findDefinitionPanel = findDefinitionPanel;
         this.historyPanel = historyPanel;
+        this.addSlangPanel = addSlangPanel;
+        this.dictionaryPanel = dictionaryPanel;
+        this.editSlangPanel = editSlangPanel;
         initializeListeners();
     }
 
@@ -21,6 +33,9 @@ public class AppController {
         findSlangPanel.getSearchButton().addActionListener(e -> handleFindSlang());
         findDefinitionPanel.getSearchButton().addActionListener(e -> handleFindDefinition());
         historyPanel.setDeleteHistoryListener(e -> clearHistory());
+        addSlangPanel.addAddButtonListener(e -> handleAddSlang(addSlangPanel.getSlangInput().getText(), addSlangPanel.getDefinitionInput().getText()));
+        editSlangPanel.getFetchButton().addActionListener(e -> handleFetchSlang());
+        editSlangPanel.getUpdateButton().addActionListener(e -> handleUpdateSlang());
     }
 
     private void handleFindSlang() {
@@ -57,5 +72,107 @@ public class AppController {
     private void clearHistory() {
         model.History.clearHistory();
         historyPanel.setHistory(new String[0]);
+    }
+
+    private void handleAddSlang(String slangWord, String definition) {
+        slangWord = slangWord.trim().toUpperCase();
+        definition = definition.trim();
+
+        if (slangWord.isEmpty() || definition.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                null,
+                "Please enter both a slang word and its definition."
+            );
+            return;
+        }
+
+        if (model.SlangDictionary.getDefinitions(slangWord).isEmpty()) {
+            model.SlangDictionary.addEntry(
+                slangWord,
+                definition,
+                model.SlangDictionary.AddMode.NEW
+            );
+
+        } else {
+            Object[] options = {"Overwrite", "Add Definition", "Cancel"};
+
+            int choice = JOptionPane.showOptionDialog(
+                null,
+                "The slang word '" + slangWord + "' already exists.\n"
+                    + "What would you like to do?",
+                "Duplicate Slang Word",
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.WARNING_MESSAGE,
+                null,
+                options,
+                options[2]
+            );
+
+            switch (choice) {
+                case 0:
+                    model.SlangDictionary.addEntry(
+                        slangWord,
+                        definition,
+                        model.SlangDictionary.AddMode.OVERWRITE
+                    );
+                    break;
+
+                case 1:
+                    model.SlangDictionary.addEntry(
+                        slangWord,
+                        definition,
+                        model.SlangDictionary.AddMode.DUPLICATE
+                    );
+                    break;
+
+                default:
+                    return;
+            }
+        }
+
+        model.SlangDictionary.saveToFile();
+        dictionaryPanel.loadEntries();
+
+        JOptionPane.showMessageDialog(
+            null,
+            "Slang word added successfully!"
+        );
+    }
+
+    public void handleFetchSlang() {
+        String slang = editSlangPanel.getSlangInput().getText().toUpperCase().trim();
+        if (slang.isEmpty()) {
+            JOptionPane.showMessageDialog(editSlangPanel, "Enter a slang word.", "Input warning", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String currentDef = SlangDictionary.getDefinition(slang);
+        if (currentDef != null) {
+            editSlangPanel.getDefinitionInput().setText(currentDef);
+        } else {
+            JOptionPane.showMessageDialog(editSlangPanel, "Slang word '" + slang + "' not found!", "Not Found", JOptionPane.ERROR_MESSAGE);
+            editSlangPanel.getDefinitionInput().setText("");
+        }
+    }
+
+    public void handleUpdateSlang() {
+        String slang = editSlangPanel.getSlangInput().getText().toUpperCase().trim();
+        String newDefinition = editSlangPanel.getDefinitionInput().getText().trim();
+
+        if (slang.isEmpty() || newDefinition.isEmpty()) {
+            JOptionPane.showMessageDialog(editSlangPanel, "Both slang word and new definition are required.", "Input Warning", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (!SlangDictionary.getAllEntries().containsKey(slang)) {
+            JOptionPane.showMessageDialog(editSlangPanel, "Cannot update. Slang word does not exist in dictionary.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        SlangDictionary.addEntry(slang, newDefinition, SlangDictionary.AddMode.OVERWRITE);
+        SlangDictionary.saveToFile();
+        dictionaryPanel.loadEntries();
+
+        JOptionPane.showMessageDialog(editSlangPanel, "Slang word '" + slang + "' updated successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
     }
 }

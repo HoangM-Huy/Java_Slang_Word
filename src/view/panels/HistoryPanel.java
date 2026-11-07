@@ -23,6 +23,7 @@ public class HistoryPanel extends JPanel {
         historyArea.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         JScrollPane historyScrollPane = new JScrollPane(historyArea);
+        historyScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         historyScrollPane.setBorder(BorderFactory.createLineBorder(Color.GRAY));
         add(historyScrollPane, BorderLayout.CENTER);
 

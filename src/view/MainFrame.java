@@ -10,6 +10,7 @@ public class MainFrame extends JFrame {
     private JPanel mainContainer;
     private CardLayout cardLayout;
     private AppController controller;
+    private DictionaryPanel dictionaryPanel;
 
     public MainFrame() {
         setTitle("Slang Dictionary");
@@ -22,29 +23,35 @@ public class MainFrame extends JFrame {
     }
 
     private void initializeComponents() {
-       cardLayout = new CardLayout();
-       mainContainer = new JPanel(cardLayout);
+        cardLayout = new CardLayout();
+        mainContainer = new JPanel(cardLayout);
 
-       FindSlangPanel findSlangPanel = new FindSlangPanel();
-       FindDefinitionPanel findDefinitionPanel = new FindDefinitionPanel();
-       HistoryPanel historyPanel = new HistoryPanel();
+        FindSlangPanel findSlangPanel = new FindSlangPanel();
+        FindDefinitionPanel findDefinitionPanel = new FindDefinitionPanel();
+        HistoryPanel historyPanel = new HistoryPanel();
+        AddSlangPanel addSlangPanel = new AddSlangPanel();
+        dictionaryPanel = new DictionaryPanel(mainContainer);
+        EditSlangPanel editSlangPanel = new EditSlangPanel();
 
-       mainContainer.add(findSlangPanel, "FINDSLANG");
-       mainContainer.add(findDefinitionPanel, "FINDDEF");
-       mainContainer.add(historyPanel, "HISTORY");
+        mainContainer.add(findSlangPanel, "FINDSLANG");
+        mainContainer.add(findDefinitionPanel, "FINDDEF");
+        mainContainer.add(historyPanel, "HISTORY");
+        mainContainer.add(addSlangPanel, "ADDSLANG");
+        mainContainer.add(editSlangPanel, "EDITSLANG");
 
-       historyPanel.loadHistoryFromFile();
-       controller = new AppController(findSlangPanel, findDefinitionPanel, historyPanel); 
+        historyPanel.loadHistoryFromFile();
+        
+        controller = new AppController(findSlangPanel, findDefinitionPanel, historyPanel, addSlangPanel, dictionaryPanel, editSlangPanel);
     }
 
     private void setupLayout() {
         setLayout(new BorderLayout());
         HeaderPanel header = new HeaderPanel();
         SidebarPanel sidebar = new SidebarPanel(this::navigateTo);
-        DictionaryPanel dictionary = new DictionaryPanel(mainContainer);
+        
         add(header, BorderLayout.NORTH);
         add(sidebar, BorderLayout.WEST);
-        add(dictionary, BorderLayout.EAST);
+        add(dictionaryPanel, BorderLayout.EAST);
         add(mainContainer, BorderLayout.CENTER);
     }
 
