@@ -11,6 +11,7 @@ public class AppController {
     private AddSlangPanel addSlangPanel;
     private DictionaryPanel dictionaryPanel;
     private EditSlangPanel editSlangPanel;
+    private DeleteSlangPanel deleteSlangPanel;
 
     public AppController(
         FindSlangPanel findSlangPanel, 
@@ -18,7 +19,8 @@ public class AppController {
         HistoryPanel historyPanel, 
         AddSlangPanel addSlangPanel, 
         DictionaryPanel dictionaryPanel, 
-        EditSlangPanel editSlangPanel) 
+        EditSlangPanel editSlangPanel, 
+        DeleteSlangPanel deleteSlangPanel) 
     {
         this.findSlangPanel = findSlangPanel;
         this.findDefinitionPanel = findDefinitionPanel;
@@ -26,6 +28,8 @@ public class AppController {
         this.addSlangPanel = addSlangPanel;
         this.dictionaryPanel = dictionaryPanel;
         this.editSlangPanel = editSlangPanel;
+        this.deleteSlangPanel = deleteSlangPanel;
+
         initializeListeners();
     }
 
@@ -36,6 +40,7 @@ public class AppController {
         addSlangPanel.addAddButtonListener(e -> handleAddSlang(addSlangPanel.getSlangInput().getText(), addSlangPanel.getDefinitionInput().getText()));
         editSlangPanel.getFetchButton().addActionListener(e -> handleFetchSlang());
         editSlangPanel.getUpdateButton().addActionListener(e -> handleUpdateSlang());
+        deleteSlangPanel.getDeleteButton().addActionListener(e -> handleDeleteSlang());
     }
 
     private void handleFindSlang() {
@@ -139,7 +144,7 @@ public class AppController {
         );
     }
 
-    public void handleFetchSlang() {
+    private void handleFetchSlang() {
         String slang = editSlangPanel.getSlangInput().getText().toUpperCase().trim();
         if (slang.isEmpty()) {
             JOptionPane.showMessageDialog(editSlangPanel, "Enter a slang word.", "Input warning", JOptionPane.WARNING_MESSAGE);
@@ -155,7 +160,7 @@ public class AppController {
         }
     }
 
-    public void handleUpdateSlang() {
+    private void handleUpdateSlang() {
         String slang = editSlangPanel.getSlangInput().getText().toUpperCase().trim();
         String newDefinition = editSlangPanel.getDefinitionInput().getText().trim();
 
@@ -174,5 +179,37 @@ public class AppController {
         dictionaryPanel.loadEntries();
 
         JOptionPane.showMessageDialog(editSlangPanel, "Slang word '" + slang + "' updated successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void handleDeleteSlang() {
+        String slang = deleteSlangPanel.getInputSlang().getText().trim();
+
+        if (slang.isEmpty()) {
+            JOptionPane.showMessageDialog(deleteSlangPanel, "Enter a slang word.", "Input Warning", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (!SlangDictionary.getAllEntries().containsKey(slang)) {
+            JOptionPane.showMessageDialog(deleteSlangPanel, "Slang word '" + slang + "' does not exist.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(
+            deleteSlangPanel,
+            "Are you sure you want to delete '" + slang + "'?",
+            "Confirm Delete",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.WARNING_MESSAGE
+        );
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            SlangDictionary.removeEntry(slang);
+            SlangDictionary.saveToFile();
+
+            dictionaryPanel.loadEntries();
+            deleteSlangPanel.getInputSlang().setText("");
+
+            JOptionPane.showMessageDialog(deleteSlangPanel, "Slang word '" + slang + "' deleted.", "Success", JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 }

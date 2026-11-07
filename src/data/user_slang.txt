@@ -1,8 +1,8 @@
-BBC`British sth sth
+BBC`sth sth British
 BBB`Bugging Beyond Belief
-BBE`Babe
 GLOTR`Good Luck On The Rebuild
 TWSS`That's What She Said
+BBE`Big Bad End
 BBG`Best Be Going
 BBK`Boy Better Know
 TFRM`Thanks For Reminding Me
@@ -360,8 +360,7 @@ BSB`Backstreet Boys
 STR`Short Term Relationship
 BSA`Boy Scouts of America
 BSC`Bachelor of Science
-C4C`Cam for Cam
-    Comment for Comment
+C4C`Comment for Comment
 STS`Smirk To Self
 TI AMO`I Love You
 BSF`But Seriously Folks

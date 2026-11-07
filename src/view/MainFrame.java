@@ -32,16 +32,18 @@ public class MainFrame extends JFrame {
         AddSlangPanel addSlangPanel = new AddSlangPanel();
         dictionaryPanel = new DictionaryPanel(mainContainer);
         EditSlangPanel editSlangPanel = new EditSlangPanel();
+        DeleteSlangPanel deleteSlangPanel = new DeleteSlangPanel();
 
         mainContainer.add(findSlangPanel, "FINDSLANG");
         mainContainer.add(findDefinitionPanel, "FINDDEF");
         mainContainer.add(historyPanel, "HISTORY");
         mainContainer.add(addSlangPanel, "ADDSLANG");
         mainContainer.add(editSlangPanel, "EDITSLANG");
+        mainContainer.add(deleteSlangPanel, "DELETESLANG");
 
         historyPanel.loadHistoryFromFile();
         
-        controller = new AppController(findSlangPanel, findDefinitionPanel, historyPanel, addSlangPanel, dictionaryPanel, editSlangPanel);
+        controller = new AppController(findSlangPanel, findDefinitionPanel, historyPanel, addSlangPanel, dictionaryPanel, editSlangPanel, deleteSlangPanel);
     }
 
     private void setupLayout() {

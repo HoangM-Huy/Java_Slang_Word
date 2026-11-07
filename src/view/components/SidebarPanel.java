@@ -14,6 +14,7 @@ public class SidebarPanel extends JPanel {
         JButton history = new JButton("History");
         JButton addSlang = new JButton("Add a slang");
         JButton editSlang = new JButton("Edit a slang");
+        JButton deleteSlang = new JButton("Delete a slang");
         JButton randomSlang = new JButton("Random slang");
         JButton slangQuiz = new JButton("Slang word quiz");
         JButton defQuiz = new JButton("Definition quiz");
@@ -23,17 +24,19 @@ public class SidebarPanel extends JPanel {
         history.addActionListener(e -> navigationHandler.accept("HISTORY"));
         addSlang.addActionListener(e -> navigationHandler.accept("ADDSLANG"));
         editSlang.addActionListener(e -> navigationHandler.accept("EDITSLANG"));
+        deleteSlang.addActionListener(e -> navigationHandler.accept("DELETESLANG"));
         randomSlang.addActionListener(e -> navigationHandler.accept("RANDOMSLANG"));
         slangQuiz.addActionListener(e -> navigationHandler.accept("SLANGQUIZ"));
         defQuiz.addActionListener(e -> navigationHandler.accept("DEFQUIZ"));
 
-        JPanel buttonContainer = new JPanel(new GridLayout(8, 1, 5, 5));
+        JPanel buttonContainer = new JPanel(new GridLayout(9, 1, 5, 5));
         buttonContainer.setPreferredSize(new Dimension(180, 0));
         buttonContainer.add(findSlang);
         buttonContainer.add(findDef);
         buttonContainer.add(history);
         buttonContainer.add(addSlang);
         buttonContainer.add(editSlang);
+        buttonContainer.add(deleteSlang);
         buttonContainer.add(randomSlang);
         buttonContainer.add(slangQuiz);
         buttonContainer.add(defQuiz);
