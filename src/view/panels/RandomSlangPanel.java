@@ -5,7 +5,7 @@ import javax.swing.*;
 
 public class RandomSlangPanel extends JPanel {
     private JTextField randomSlang;
-    private JTextField randomDef;
+    private JTextArea randomDef;
     private JButton randomButton;
 
     public RandomSlangPanel() {
@@ -32,22 +32,32 @@ public class RandomSlangPanel extends JPanel {
 
         randomPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 
-        randomSlang = new JTextField(15);
-        randomDef = new JTextField(20);
-        randomSlang.setFont(new Font("Arial", Font.PLAIN, 14));
+        
+        randomDef = new JTextArea(5, 20);      
+        randomDef.setLineWrap(true);
+        randomDef.setWrapStyleWord(true);
+        randomDef.setEditable(false);
         randomDef.setFont(new Font("Arial", Font.PLAIN, 14));
+        randomDef.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
+
+        JScrollPane defScroll = new JScrollPane(randomDef);
+        defScroll.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+        defScroll.setMaximumSize(defScroll.getPreferredSize());
+        defScroll.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        randomSlang = new JTextField(15);
+        randomSlang.setFont(new Font("Arial", Font.PLAIN, 14));
+
         randomSlang.setEditable(false);
         randomDef.setEditable(false);
         
         randomSlang.setMaximumSize(randomSlang.getPreferredSize());
         randomSlang.setAlignmentX(Component.CENTER_ALIGNMENT);
-        randomDef.setMaximumSize(randomDef.getPreferredSize());
-        randomDef.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         randomPanel.add(randomSlang);
         randomPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         randomPanel.add(definitionLabel);
-        randomPanel.add(randomDef);
+        randomPanel.add(defScroll);
         randomPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 
         randomButton = new JButton("Random");
@@ -65,7 +75,7 @@ public class RandomSlangPanel extends JPanel {
         return randomSlang;
     }
 
-    public JTextField getRandomDefTextField() {
+    public JTextArea getRandomDefTextField() {
         return randomDef;
     }
 

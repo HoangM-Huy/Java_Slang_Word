@@ -8,3 +8,23 @@ JJK : Jujutsu Kaisen
 BBC : British sth
 BBB : British
 C4C : Cam for Cam
+ABCD : Letters
+ABCDE : letters
+C4C : Comment for Comment; Cam for Cam
+OTW : On The Way; On The Whole
+ER : Emergency Room; Indicating hesitation
+OTW : On The Way; On The Whole; one year war
+C4C : Comment for Comment; Cam for Cam
+OTW : On The Way; On The Whole; one year war
+OTW : On The Way; On The Whole
+BBC : British Broadcasting Corporation; Big black bullshit
+BBC : Big black bullshit
+BBC : British Broadcasting Corporation
+BBC : British Broadcasting Corporation
+BBC : British sth sth
+BBC : British Broadcasting Corporation
+^.^ : Happy
+|O| : LOL
+C4C : Comment for Comment; Cam for Cam
+C4C : Comment for Comment; Cam for Cam; Bomb
+C4C : Comment for Comment; Cam for Cam

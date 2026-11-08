@@ -85,10 +85,10 @@ public class AppController {
     private void handleFindSlang() {
         String slangWord = findSlangPanel.getSlangInput().getText().toUpperCase().trim();
         if (!slangWord.isEmpty()) {
-            String definition = model.SlangDictionary.getDefinition(slangWord);
-            if (definition != null) {
-                findSlangPanel.getResultArea().setText(definition);
-                addHistory(slangWord + " : " + definition);
+            List<String> definitions = SlangDictionary.getDefinitions(slangWord);
+            if (!definitions.isEmpty()) {
+                findSlangPanel.getResultArea().setText(String.join("\n", definitions));
+                addHistory(slangWord + " : " + String.join("; ", definitions));
             } else {
                 findSlangPanel.getResultArea().setText("No definition found for: " + slangWord);
             }
@@ -190,8 +190,8 @@ public class AppController {
             return;
         }
 
-        String currentDef = SlangDictionary.getDefinition(slang);
-        if (currentDef != null) {
+        String currentDef = String.join("\n", SlangDictionary.getDefinitions(slang));
+        if (!currentDef.isEmpty()) {
             editSlangPanel.getDefinitionInput().setText(currentDef);
         } else {
             JOptionPane.showMessageDialog(editSlangPanel, "Slang word '" + slang + "' not found!", "Not Found", JOptionPane.ERROR_MESSAGE);
@@ -200,8 +200,21 @@ public class AppController {
     }
 
     private void handleResetDictionary() {
-        SlangDictionary.resetDictionary();
-        dictionaryPanel.loadEntries();
+        int confirm = JOptionPane.showConfirmDialog(
+            dictionaryPanel,
+            "This will discard all your changes and restore the original dictionary. Continue?",
+            "Reset Dictionary",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.WARNING_MESSAGE
+        );
+        if (confirm != JOptionPane.YES_OPTION) return;
+
+        if (SlangDictionary.resetDictionary()) {
+            dictionaryPanel.loadEntries();
+            JOptionPane.showMessageDialog(dictionaryPanel, "Dictionary restored to original.");
+        } else {
+            JOptionPane.showMessageDialog(dictionaryPanel, "Reset failed. Original file not found.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void handleUpdateSlang() {
@@ -226,7 +239,7 @@ public class AppController {
     }
 
     private void handleDeleteSlang() {
-        String slang = deleteSlangPanel.getInputSlang().getText().trim();
+        String slang = deleteSlangPanel.getInputSlang().getText().toUpperCase().trim();
 
         if (slang.isEmpty()) {
             JOptionPane.showMessageDialog(deleteSlangPanel, "Enter a slang word.", "Input Warning", JOptionPane.WARNING_MESSAGE);
@@ -258,16 +271,16 @@ public class AppController {
     }
 
     private void handleRandomSlang() {
-        randomSlangPanel.setRandomSlang("");
-        randomSlangPanel.setRandomDef("");
-
-        Random random = new Random();
         List<String> keys = new ArrayList<>(SlangDictionary.getAllEntries().keySet());
-        String randomkey = keys.get(random.nextInt(keys.size()));
-        String keyValue = SlangDictionary.getDefinition(randomkey);
+        if (keys.isEmpty()) {
+            randomSlangPanel.setRandomSlang("");
+            randomSlangPanel.setRandomDef("The dictionary is empty.");
+            return;
+        }
 
-        randomSlangPanel.setRandomSlang(randomkey);
-        randomSlangPanel.setRandomDef(keyValue);
+        String randomKey = keys.get(new Random().nextInt(keys.size()));
+        randomSlangPanel.setRandomSlang(randomKey);
+        randomSlangPanel.setRandomDef(String.join("\n", SlangDictionary.getDefinitions(randomKey)));
     }
 
     private void handleNewQuiz() {

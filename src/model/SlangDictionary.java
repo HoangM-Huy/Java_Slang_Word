@@ -31,7 +31,7 @@ public class SlangDictionary {
     public static void addEntry(String slangWord, String definition, AddMode mode) {
         List<String> definitions = new ArrayList<>();
 
-        for (String item : definition.split("\\|")) {
+        for (String item : definition.split("[|\\r\\n]+")) {
             String trimmedItem = item.trim();
 
             if (!trimmedItem.isEmpty()) {
@@ -39,18 +39,25 @@ public class SlangDictionary {
             }
         }
 
+        // FIX: a definition made only of separators (e.g. "|") would create an empty entry
+        if (definitions.isEmpty()) {
+            return;
+        }
+
         switch (mode) {
             case NEW:
-                slangEntries.put(slangWord, definitions);
-                break;
-
             case OVERWRITE:
                 slangEntries.put(slangWord, definitions);
                 break;
 
             case DUPLICATE:
-                slangEntries.computeIfAbsent(slangWord, key -> new ArrayList<>())
-                            .addAll(definitions);
+                // FIX: merge into the existing list and skip definitions it already has
+                List<String> existing = slangEntries.computeIfAbsent(slangWord, key -> new ArrayList<>());
+                for (String d : definitions) {
+                    if (existing.stream().noneMatch(x -> x.equalsIgnoreCase(d))) {
+                        existing.add(d);
+                    }
+                }
                 break;
         }
     }
@@ -93,8 +100,8 @@ public class SlangDictionary {
     }
 
     public static void initializeUserFile() {
-        Path userFilePath = java.nio.file.Paths.get(USER_FILE);
-        Path originalFilePath = java.nio.file.Paths.get(ORIGINAL_FILE);
+        Path userFilePath = Paths.get(USER_FILE);
+        Path originalFilePath = Paths.get(ORIGINAL_FILE);
 
         try {
             if (userFilePath.getParent() != null && !Files.exists(userFilePath.getParent())) {
@@ -128,20 +135,18 @@ public class SlangDictionary {
 
         try {
             if (userFilePath.getParent() != null) {
-                Files.createDirectories(userFilePath.getParent()); // no-op if it already exists
+                Files.createDirectories(userFilePath.getParent());
             }
 
-            // Always overwrite, no missing/empty check
             Files.copy(originalFilePath, userFilePath, StandardCopyOption.REPLACE_EXISTING);
 
-            clearEntries();
-            loadFromFile();
+            loadFromFile(); // loadFromFile now clears the map itself
             return true;
         } catch (IOException e) {
             e.printStackTrace();
             return false;
         }
-}
+    }
 
     public static SlangQuiz generateSlangQuiz() {
         List<String> keys = new ArrayList<>(slangEntries.keySet());
@@ -218,6 +223,8 @@ public class SlangDictionary {
     }
 
     public static void loadFromFile() {
+        clearEntries();
+
         try (BufferedReader br = new BufferedReader(new FileReader(USER_FILE))) {
             String line;
             String currentSlangWord = null;
@@ -231,10 +238,10 @@ public class SlangDictionary {
                     String slangWord = line.substring(0, delimiterIndex).trim();
                     currentSlangWord = slangWord.isEmpty() ? null : slangWord;
                     if (currentSlangWord != null) {
-                        addEntry(currentSlangWord, line.substring(delimiterIndex + 1).trim(), AddMode.NEW);
+                        addEntry(currentSlangWord, line.substring(delimiterIndex + 1).trim(), AddMode.DUPLICATE);
                     }
                 } else if (currentSlangWord != null) {
-                    addEntry(currentSlangWord, line.trim(), AddMode.NEW);
+                    addEntry(currentSlangWord, line.trim(), AddMode.DUPLICATE);
                 }
             }
         } catch (Exception e) {
@@ -246,6 +253,10 @@ public class SlangDictionary {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(USER_FILE))) {
 
             for (Map.Entry<String, List<String>> entry : slangEntries.entrySet()) {
+                if (entry.getValue().isEmpty()) {
+                    continue;
+                }
+
                 writer.write(entry.getKey() + "`");
 
                 writer.write(entry.getValue().get(0));
