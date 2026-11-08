@@ -33,6 +33,9 @@ public class MainFrame extends JFrame {
         dictionaryPanel = new DictionaryPanel(mainContainer);
         EditSlangPanel editSlangPanel = new EditSlangPanel();
         DeleteSlangPanel deleteSlangPanel = new DeleteSlangPanel();
+        RandomSlangPanel randomSlangPanel = new RandomSlangPanel();
+        SlangQuizPanel slangQuizPanel = new SlangQuizPanel();
+        DefinitionQuizPanel definitionQuizPanel = new DefinitionQuizPanel();
 
         mainContainer.add(findSlangPanel, "FINDSLANG");
         mainContainer.add(findDefinitionPanel, "FINDDEF");
@@ -40,10 +43,22 @@ public class MainFrame extends JFrame {
         mainContainer.add(addSlangPanel, "ADDSLANG");
         mainContainer.add(editSlangPanel, "EDITSLANG");
         mainContainer.add(deleteSlangPanel, "DELETESLANG");
+        mainContainer.add(randomSlangPanel, "RANDOMSLANG");
+        mainContainer.add(slangQuizPanel, "SLANGQUIZ");
+        mainContainer.add(definitionQuizPanel, "DEFQUIZ");
 
         historyPanel.loadHistoryFromFile();
         
-        controller = new AppController(findSlangPanel, findDefinitionPanel, historyPanel, addSlangPanel, dictionaryPanel, editSlangPanel, deleteSlangPanel);
+        controller = new AppController(findSlangPanel, 
+            findDefinitionPanel, 
+            historyPanel, 
+            addSlangPanel, 
+            dictionaryPanel, 
+            editSlangPanel, 
+            deleteSlangPanel, 
+            randomSlangPanel, 
+            slangQuizPanel,
+            definitionQuizPanel);
     }
 
     private void setupLayout() {

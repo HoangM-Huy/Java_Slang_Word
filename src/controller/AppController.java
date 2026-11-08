@@ -1,6 +1,11 @@
 package controller;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import model.SlangDictionary;
+import model.SlangQuiz;
 import view.components.*;
 import view.panels.*;
 
@@ -12,6 +17,17 @@ public class AppController {
     private DictionaryPanel dictionaryPanel;
     private EditSlangPanel editSlangPanel;
     private DeleteSlangPanel deleteSlangPanel;
+    private RandomSlangPanel randomSlangPanel;
+    private SlangQuizPanel slangQuizPanel;
+    private DefinitionQuizPanel definitionQuizPanel;
+
+    private SlangQuiz currentSlangQuiz;
+    private int slangCorrect = 0;
+    private int slangTotal = 0;
+
+    private SlangQuiz currentDefinitionQuiz;
+    private int definitionCorrect = 0;
+    private int definitionTotal = 0;
 
     public AppController(
         FindSlangPanel findSlangPanel, 
@@ -20,7 +36,10 @@ public class AppController {
         AddSlangPanel addSlangPanel, 
         DictionaryPanel dictionaryPanel, 
         EditSlangPanel editSlangPanel, 
-        DeleteSlangPanel deleteSlangPanel) 
+        DeleteSlangPanel deleteSlangPanel, 
+        RandomSlangPanel randomSlangPanel, 
+        SlangQuizPanel slangQuizPanel,
+        DefinitionQuizPanel definitionQuizPanel) 
     {
         this.findSlangPanel = findSlangPanel;
         this.findDefinitionPanel = findDefinitionPanel;
@@ -29,6 +48,9 @@ public class AppController {
         this.dictionaryPanel = dictionaryPanel;
         this.editSlangPanel = editSlangPanel;
         this.deleteSlangPanel = deleteSlangPanel;
+        this.randomSlangPanel = randomSlangPanel;
+        this.slangQuizPanel = slangQuizPanel;
+        this.definitionQuizPanel = definitionQuizPanel;
 
         initializeListeners();
     }
@@ -38,9 +60,26 @@ public class AppController {
         findDefinitionPanel.getSearchButton().addActionListener(e -> handleFindDefinition());
         historyPanel.setDeleteHistoryListener(e -> clearHistory());
         addSlangPanel.addAddButtonListener(e -> handleAddSlang(addSlangPanel.getSlangInput().getText(), addSlangPanel.getDefinitionInput().getText()));
+        dictionaryPanel.getResetButton().addActionListener(e -> handleResetDictionary());
         editSlangPanel.getFetchButton().addActionListener(e -> handleFetchSlang());
         editSlangPanel.getUpdateButton().addActionListener(e -> handleUpdateSlang());
         deleteSlangPanel.getDeleteButton().addActionListener(e -> handleDeleteSlang());
+        randomSlangPanel.getRandomButton().addActionListener(e -> handleRandomSlang());
+        
+
+        slangQuizPanel.getNextButton().addActionListener(e -> handleNewQuiz());
+        JButton[] answers = slangQuizPanel.getAnswerButtons();
+        for (int i = 0; i < answers.length; i++) {
+            final int index = i;
+            answers[i].addActionListener(e -> handleQuizAnswer(index));
+        }
+
+        definitionQuizPanel.getNextButton().addActionListener(e -> handleNewDefinitionQuiz());
+        JButton[] defAnswers = definitionQuizPanel.getAnswerButtons();
+        for (int i = 0; i < defAnswers.length; i++) {
+            final int index = i;
+            defAnswers[i].addActionListener(e -> handleReverseQuizAnswer(index));
+        }
     }
 
     private void handleFindSlang() {
@@ -160,6 +199,11 @@ public class AppController {
         }
     }
 
+    private void handleResetDictionary() {
+        SlangDictionary.resetDictionary();
+        dictionaryPanel.loadEntries();
+    }
+
     private void handleUpdateSlang() {
         String slang = editSlangPanel.getSlangInput().getText().toUpperCase().trim();
         String newDefinition = editSlangPanel.getDefinitionInput().getText().trim();
@@ -211,5 +255,54 @@ public class AppController {
 
             JOptionPane.showMessageDialog(deleteSlangPanel, "Slang word '" + slang + "' deleted.", "Success", JOptionPane.INFORMATION_MESSAGE);
         }
+    }
+
+    private void handleRandomSlang() {
+        randomSlangPanel.setRandomSlang("");
+        randomSlangPanel.setRandomDef("");
+
+        Random random = new Random();
+        List<String> keys = new ArrayList<>(SlangDictionary.getAllEntries().keySet());
+        String randomkey = keys.get(random.nextInt(keys.size()));
+        String keyValue = SlangDictionary.getDefinition(randomkey);
+
+        randomSlangPanel.setRandomSlang(randomkey);
+        randomSlangPanel.setRandomDef(keyValue);
+    }
+
+    private void handleNewQuiz() {
+        currentSlangQuiz = SlangDictionary.generateSlangQuiz();
+        if (currentSlangQuiz == null) {
+            slangQuizPanel.showMessage("Need at least 4 slang words with different definitions.");
+            return;
+        }
+        slangQuizPanel.showQuestion(currentSlangQuiz.getPrompt(), currentSlangQuiz.getOptions());
+    }
+
+    private void handleQuizAnswer(int chosen) {
+        if (currentSlangQuiz == null) return;
+        int correct = currentSlangQuiz.getCorrectAnswer();
+        slangTotal++;
+        if (chosen == correct) slangCorrect++;
+        slangQuizPanel.showResult(chosen, correct);
+        slangQuizPanel.setScore(slangCorrect, slangTotal);
+    }
+
+    private void handleNewDefinitionQuiz() {
+        currentDefinitionQuiz = SlangDictionary.generateDefinitionQuiz();
+        if (currentDefinitionQuiz == null) {
+            definitionQuizPanel.showMessage("Need at least 4 slang words with different definitions.");
+            return;
+        }
+        definitionQuizPanel.showQuestion(currentDefinitionQuiz.getPrompt(), currentDefinitionQuiz.getOptions());
+    }
+
+    private void handleReverseQuizAnswer(int chosen) {
+        if (currentDefinitionQuiz == null) return;
+        int correct = currentDefinitionQuiz.getCorrectAnswer();
+        definitionTotal++;
+        if (chosen == correct) definitionCorrect++;
+        definitionQuizPanel.showResult(chosen, correct);
+        definitionQuizPanel.setScore(definitionCorrect, definitionTotal);
     }
 }

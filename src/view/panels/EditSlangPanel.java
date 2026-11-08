@@ -12,9 +12,11 @@ public class EditSlangPanel extends JPanel {
         setLayout(new BorderLayout(10, 20));
         setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
 
+
         JLabel headerLabel = new JLabel("Edit Slang Word", SwingConstants.CENTER);
         JPanel headerContainer = new JPanel(new FlowLayout(FlowLayout.CENTER));
         headerLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        headerContainer.add(headerLabel);
         add(headerContainer, BorderLayout.NORTH);
         add(Box.createRigidArea(new Dimension(0, 10)));
 

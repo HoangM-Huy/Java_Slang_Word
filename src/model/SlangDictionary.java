@@ -6,12 +6,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 public class SlangDictionary {
     private static Map<String, List<String>> slangEntries = new HashMap<>();
@@ -113,6 +117,106 @@ public class SlangDictionary {
         }
     }
 
+    public static boolean resetDictionary() {
+        Path userFilePath = Paths.get(USER_FILE);
+        Path originalFilePath = Paths.get(ORIGINAL_FILE);
+
+        if (!Files.exists(originalFilePath)) {
+            System.err.println("Error: Original file not found at " + originalFilePath.toAbsolutePath());
+            return false;
+        }
+
+        try {
+            if (userFilePath.getParent() != null) {
+                Files.createDirectories(userFilePath.getParent()); // no-op if it already exists
+            }
+
+            // Always overwrite, no missing/empty check
+            Files.copy(originalFilePath, userFilePath, StandardCopyOption.REPLACE_EXISTING);
+
+            clearEntries();
+            loadFromFile();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+}
+
+    public static SlangQuiz generateSlangQuiz() {
+        List<String> keys = new ArrayList<>(slangEntries.keySet());
+        if (keys.size() < 4) {
+            return null;
+        }
+
+        Random random = new Random();
+        String slang = keys.get(random.nextInt(keys.size()));
+        String correct = getDefinition(slang);
+
+        Set<String> options = new LinkedHashSet<>();
+        options.add(correct);
+
+        int attempts = 0;
+        while (options.size() < 4 && attempts < 200) {
+            String other = keys.get(random.nextInt(keys.size()));
+            if (!other.equals(slang)) {
+                options.add(getDefinition(other));
+            }
+            attempts++;
+        }
+        if (options.size() < 4) {
+            return null;
+        }
+
+        List<String> shuffled = new ArrayList<>(options);
+        Collections.shuffle(shuffled);
+        return new SlangQuiz(slang, shuffled, shuffled.indexOf(correct));
+    }
+
+    public static SlangQuiz generateDefinitionQuiz() {
+        List<String> keys = new ArrayList<>(slangEntries.keySet());
+        if (keys.size() < 4) {
+            return null;
+        }
+
+        Random random = new Random();
+        String slang = keys.get(random.nextInt(keys.size()));
+        List<String> defs = slangEntries.get(slang);
+        if (defs.isEmpty()) {
+            return null;
+        }
+
+        String definition = defs.get(random.nextInt(defs.size()));
+
+        Set<String> options = new LinkedHashSet<>();
+        options.add(slang);
+
+        int attempts = 0;
+        while (options.size() < 4 && attempts < 200) {
+            String other = keys.get(random.nextInt(keys.size()));
+            if (!other.equals(slang) && !hasDefinition(other, definition)) {
+                options.add(other);
+            }
+            attempts++;
+        }
+        if (options.size() < 4) {
+            return null;
+        }
+
+        List<String> shuffled = new ArrayList<>(options);
+        Collections.shuffle(shuffled);
+        return new SlangQuiz(definition, shuffled, shuffled.indexOf(slang));
+    }
+
+    private static boolean hasDefinition(String slangWord, String definition) {
+        for (String d : slangEntries.get(slangWord)) {
+            if (d.equalsIgnoreCase(definition)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static void loadFromFile() {
         try (BufferedReader br = new BufferedReader(new FileReader(USER_FILE))) {
             String line;
@@ -155,6 +259,6 @@ public class SlangDictionary {
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
     }
-}
 }

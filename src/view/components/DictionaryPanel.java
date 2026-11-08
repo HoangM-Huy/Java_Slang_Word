@@ -6,6 +6,7 @@ import model.*;
 
 public class DictionaryPanel extends JPanel {
     private JPanel entriesContainer;
+    private JButton resetButton;
 
     public DictionaryPanel(JPanel contentPanel) {
         // Use BorderLayout for proper stretching of the scrollpane
@@ -14,6 +15,7 @@ public class DictionaryPanel extends JPanel {
         JPanel dictionaryHeader = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JLabel headerLabel = new JLabel("Dictionary");
         headerLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        
         dictionaryHeader.add(headerLabel);
         add(dictionaryHeader, BorderLayout.NORTH);
 
@@ -25,13 +27,14 @@ public class DictionaryPanel extends JPanel {
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setPreferredSize(new Dimension(220, 400));
 
+        resetButton = new JButton("Reset");
         add(scrollPane, BorderLayout.CENTER);
+        add(resetButton, BorderLayout.SOUTH);
 
         loadEntries();
     }
 
     public void loadEntries() {
-        // Clear old entries from container
         entriesContainer.removeAll();
 
         SlangDictionary.initializeUserFile();
@@ -43,8 +46,11 @@ public class DictionaryPanel extends JPanel {
             entriesContainer.add(entryLabel);
         }
 
-        // Refresh UI
         entriesContainer.revalidate();
         entriesContainer.repaint();
+    }
+
+    public JButton getResetButton() {
+        return resetButton;
     }
 }
