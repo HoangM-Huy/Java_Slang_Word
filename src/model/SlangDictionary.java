@@ -39,7 +39,6 @@ public class SlangDictionary {
             }
         }
 
-        // FIX: a definition made only of separators (e.g. "|") would create an empty entry
         if (definitions.isEmpty()) {
             return;
         }
@@ -51,7 +50,6 @@ public class SlangDictionary {
                 break;
 
             case DUPLICATE:
-                // FIX: merge into the existing list and skip definitions it already has
                 List<String> existing = slangEntries.computeIfAbsent(slangWord, key -> new ArrayList<>());
                 for (String d : definitions) {
                     if (existing.stream().noneMatch(x -> x.equalsIgnoreCase(d))) {
@@ -140,7 +138,7 @@ public class SlangDictionary {
 
             Files.copy(originalFilePath, userFilePath, StandardCopyOption.REPLACE_EXISTING);
 
-            loadFromFile(); // loadFromFile now clears the map itself
+            loadFromFile();
             return true;
         } catch (IOException e) {
             e.printStackTrace();
