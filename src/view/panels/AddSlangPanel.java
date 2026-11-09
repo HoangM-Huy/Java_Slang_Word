@@ -6,9 +6,6 @@ import javax.swing.*;
 import javax.swing.border.Border;
 
 public class AddSlangPanel extends JPanel {
-    private static final Color ACCENT = new Color(52, 120, 246);
-    private static final Color MUTED = new Color(120, 120, 120);
-
     private JTextField slangInput;
     private JTextField definitionInput;
     private JButton addButton;

@@ -5,7 +5,7 @@ import javax.swing.*;
 
 public class FindDefinitionPanel extends JPanel{
     private JTextArea definitionInput;
-    private JTextField slangOutput;
+    private JTextArea slangOutput;
     private JButton searchButton;
 
     public FindDefinitionPanel() {
@@ -18,7 +18,6 @@ public class FindDefinitionPanel extends JPanel{
         headerPanel.add(headerLabel);
 
         definitionInput = new JTextArea(5, 20);
-        slangOutput = new JTextField(20);
         searchButton = new JButton("Search");
 
         JPanel inputPanel = new JPanel();
@@ -35,7 +34,7 @@ public class FindDefinitionPanel extends JPanel{
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.add(searchButton);
-        
+
         inputPanel.add(defLabel);
         inputPanel.add(definitionInput);
 
@@ -45,12 +44,24 @@ public class FindDefinitionPanel extends JPanel{
         inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         JLabel outputLabel = new JLabel("Slang Word(s):");
-        JPanel outputPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        outputLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        slangOutput = new JTextArea(6, 20);
         slangOutput.setEditable(false);
+        slangOutput.setLineWrap(true);
+        slangOutput.setWrapStyleWord(true);
+        slangOutput.setMargin(new Insets(5, 8, 5, 8));
+
+        JScrollPane outputScroll = new JScrollPane(slangOutput);
+        outputScroll.setMaximumSize(outputScroll.getPreferredSize());
+        outputScroll.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JPanel outputPanel = new JPanel();
+        outputPanel.setLayout(new BoxLayout(outputPanel, BoxLayout.Y_AXIS));
         outputPanel.add(outputLabel);
-        outputPanel.add(slangOutput);
-        outputPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
-        
+        outputPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+        outputPanel.add(outputScroll);
+        outputPanel.setBorder(BorderFactory.createEmptyBorder(10, 30, 30, 30));
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -66,7 +77,7 @@ public class FindDefinitionPanel extends JPanel{
         return definitionInput;
     }
 
-    public JTextField getSlangOutput() {
+    public JTextArea getSlangOutput() {
         return slangOutput;
     }
 
@@ -82,7 +93,8 @@ public class FindDefinitionPanel extends JPanel{
         return definitionInput.getText().trim();
     }
 
-    public void setSlangOutput(String slangWord) {
-        slangOutput.setText(slangWord);
+    public void setSlangOutput(String slangWords) {
+        slangOutput.setText(slangWords);
+        slangOutput.setCaretPosition(0);
     }
 }

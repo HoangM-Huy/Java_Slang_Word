@@ -6,3 +6,6 @@ javac -d bin src/Main.java src/model/*.java src/view/components/*.java src/contr
 
 # How to run
 java -cp bin Main
+
+# How to use the jar file directly
+java -jar Slang_Dictionary_App.jar

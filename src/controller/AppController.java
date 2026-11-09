@@ -97,15 +97,20 @@ public class AppController {
 
     private void handleFindDefinition() {
         String definition = findDefinitionPanel.getDefinitionInput().getText().trim();
-        if (!definition.isEmpty()) {
-            String slangWord = model.SlangDictionary.getSlangByDefinition(definition);
-            if (slangWord != null) {
-                findDefinitionPanel.setSlangOutput(slangWord);
-                addHistory(slangWord + " : " + definition);
-            } else {
-                findDefinitionPanel.setSlangOutput("No slang word found.");
-            }
+        if (definition.isEmpty()) return;
+
+        List<String> slangWords = SlangDictionary.getSlangByDefinition(definition);
+        if (slangWords.isEmpty()) {
+            findDefinitionPanel.setSlangOutput("No slang word found.");
+            return;
         }
+
+        findDefinitionPanel.setSlangOutput(String.join("\n", slangWords));
+
+        // History: keep the line short, since "cool" alone has 56 words
+        String shown = String.join(", ", slangWords.subList(0, Math.min(5, slangWords.size())));
+        if (slangWords.size() > 5) shown += " (+" + (slangWords.size() - 5) + " more)";
+        addHistory(shown + " : " + definition);
     }
 
     private void addHistory(String query) {

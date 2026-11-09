@@ -122,9 +122,14 @@ public class SlangDictionary {
         return definitions == null ? null : String.join("; ", definitions);
     }
 
-    public static String getSlangByDefinition(String definition) {
+    public static List<String> getSlangByDefinition(String definition) {
         Set<String> words = definitionIndex.get(definition.trim().toLowerCase());
-        return (words == null || words.isEmpty()) ? null : words.iterator().next();
+        if (words == null || words.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<String> sorted = new ArrayList<>(words);
+        Collections.sort(sorted);
+        return sorted;
     }
 
     public static List<String> getDefinitions(String slangWord) {
