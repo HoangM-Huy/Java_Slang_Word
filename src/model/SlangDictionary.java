@@ -1,9 +1,16 @@
 package model;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,14 +25,46 @@ import java.util.Random;
 import java.util.Set;
 
 public class SlangDictionary {
-    private static Map<String, List<String>> slangEntries = new HashMap<>();
+    private static final HashMap<String, List<String>> slangEntries = new HashMap<>();
+    private static final HashMap<String, Set<String>> definitionIndex = new HashMap<>();
+
     private static final String ORIGINAL_FILE = "src/data/my_slang.txt";
     private static final String USER_FILE = "src/data/user_slang.txt";
+    private static final String INDEX_FILE = "src/data/slang.index";
 
     public enum AddMode {
         NEW,
         OVERWRITE,
         DUPLICATE
+    }
+
+    private static class IndexData implements Serializable {
+        private static final long serialVersionUID = 1L;
+        long userFileSize;       
+        long userFileModified;
+        HashMap<String, List<String>> entries;
+        HashMap<String, Set<String>> definitions;
+    }
+
+    private static void indexWord(String word) {
+        List<String> defs = slangEntries.get(word);
+        if (defs == null) return;
+        for (String d : defs) {
+            definitionIndex.computeIfAbsent(d.toLowerCase(), k -> new LinkedHashSet<>()).add(word);
+        }
+    }
+
+    private static void unindexWord(String word) {
+        List<String> defs = slangEntries.get(word);
+        if (defs == null) return;
+        for (String d : defs) {
+            String key = d.toLowerCase();
+            Set<String> words = definitionIndex.get(key);
+            if (words != null) {
+                words.remove(word);
+                if (words.isEmpty()) definitionIndex.remove(key);
+            }
+        }
     }
 
     public static void addEntry(String slangWord, String definition, AddMode mode) {
@@ -43,6 +82,8 @@ public class SlangDictionary {
             return;
         }
 
+        unindexWord(slangWord);
+
         switch (mode) {
             case NEW:
             case OVERWRITE:
@@ -58,6 +99,22 @@ public class SlangDictionary {
                 }
                 break;
         }
+
+        indexWord(slangWord);
+    }
+
+    public static boolean removeEntry(String slangWord) {
+        if (slangEntries.containsKey(slangWord)) {
+            unindexWord(slangWord);
+            slangEntries.remove(slangWord);
+            return true;
+        }
+        return false;
+    }
+
+    public static void clearEntries() {
+        slangEntries.clear();
+        definitionIndex.clear();
     }
 
     public static String getDefinition(String slangWord) {
@@ -66,14 +123,8 @@ public class SlangDictionary {
     }
 
     public static String getSlangByDefinition(String definition) {
-        for (Map.Entry<String, List<String>> entry : slangEntries.entrySet()) {
-            for (String def : entry.getValue()) {
-                if (def.equalsIgnoreCase(definition)) {
-                    return entry.getKey();
-                }
-            }
-        }
-        return null;
+        Set<String> words = definitionIndex.get(definition.trim().toLowerCase());
+        return (words == null || words.isEmpty()) ? null : words.iterator().next();
     }
 
     public static List<String> getDefinitions(String slangWord) {
@@ -83,18 +134,6 @@ public class SlangDictionary {
 
     public static Map<String, List<String>> getAllEntries() {
         return slangEntries;
-    }
-
-    public static void clearEntries() {
-        slangEntries.clear();
-    }
-
-    public static boolean removeEntry(String slangWord) {
-        if (slangEntries.containsKey(slangWord)) {
-            slangEntries.remove(slangWord);
-            return true;
-        }
-        return false;
     }
 
     public static void initializeUserFile() {
@@ -137,11 +176,126 @@ public class SlangDictionary {
             }
 
             Files.copy(originalFilePath, userFilePath, StandardCopyOption.REPLACE_EXISTING);
+            Files.deleteIfExists(Paths.get(INDEX_FILE));
 
-            loadFromFile();
+            rebuildFromTextFile();                         
             return true;
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static void loadFromFile() {
+        if (loadIndex()) {
+            return;
+        }
+        rebuildFromTextFile();
+    }
+
+    private static void rebuildFromTextFile() {
+        parseTextFile();
+        saveIndex();
+    }
+
+    private static void parseTextFile() {
+        clearEntries();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(USER_FILE))) {
+            String line;
+            String currentSlangWord = null;
+            while ((line = br.readLine()) != null) {
+                if (line.trim().isEmpty()) {
+                    continue;
+                }
+
+                int delimiterIndex = line.indexOf('`');
+                if (delimiterIndex >= 0) {
+                    String slangWord = line.substring(0, delimiterIndex).trim();
+                    currentSlangWord = slangWord.isEmpty() ? null : slangWord;
+                    if (currentSlangWord != null) {
+                        addEntry(currentSlangWord, line.substring(delimiterIndex + 1).trim(), AddMode.DUPLICATE);
+                    }
+                } else if (currentSlangWord != null) {
+                    addEntry(currentSlangWord, line.trim(), AddMode.DUPLICATE);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void saveToFile() {
+        boolean written = false;
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(USER_FILE))) {
+
+            for (Map.Entry<String, List<String>> entry : slangEntries.entrySet()) {
+                if (entry.getValue().isEmpty()) {
+                    continue;
+                }
+
+                writer.write(entry.getKey() + "`");
+
+                writer.write(entry.getValue().get(0));
+                writer.newLine();
+
+                for (int i = 1; i < entry.getValue().size(); i++) {
+                    writer.write("    " + entry.getValue().get(i));
+                    writer.newLine();
+                }
+            }
+            written = true;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (written) {
+            saveIndex();
+        }
+    }
+
+    private static void saveIndex() {
+        try {
+            Path userFile = Paths.get(USER_FILE);
+            IndexData data = new IndexData();
+            data.userFileSize = Files.size(userFile);
+            data.userFileModified = Files.getLastModifiedTime(userFile).toMillis();
+            data.entries = slangEntries;
+            data.definitions = definitionIndex;
+
+            try (ObjectOutputStream out = new ObjectOutputStream(
+                    new BufferedOutputStream(new FileOutputStream(INDEX_FILE)))) {
+                out.writeObject(data);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static boolean loadIndex() {
+        Path userFile = Paths.get(USER_FILE);
+        Path indexFile = Paths.get(INDEX_FILE);
+        if (!Files.exists(indexFile) || !Files.exists(userFile)) {
+            return false;
+        }
+
+        try (ObjectInputStream in = new ObjectInputStream(
+                new BufferedInputStream(new FileInputStream(INDEX_FILE)))) {
+            IndexData data = (IndexData) in.readObject();
+
+            if (data.userFileSize != Files.size(userFile)
+                    || data.userFileModified != Files.getLastModifiedTime(userFile).toMillis()) {
+                return false;
+            }
+
+            clearEntries();
+            slangEntries.putAll(data.entries);
+            definitionIndex.putAll(data.definitions);
+            return true;
+        } catch (Exception e) {
+            clearEntries();
             return false;
         }
     }
@@ -218,56 +372,5 @@ public class SlangDictionary {
             }
         }
         return false;
-    }
-
-    public static void loadFromFile() {
-        clearEntries();
-
-        try (BufferedReader br = new BufferedReader(new FileReader(USER_FILE))) {
-            String line;
-            String currentSlangWord = null;
-            while ((line = br.readLine()) != null) {
-                if (line.trim().isEmpty()) {
-                    continue;
-                }
-
-                int delimiterIndex = line.indexOf('`');
-                if (delimiterIndex >= 0) {
-                    String slangWord = line.substring(0, delimiterIndex).trim();
-                    currentSlangWord = slangWord.isEmpty() ? null : slangWord;
-                    if (currentSlangWord != null) {
-                        addEntry(currentSlangWord, line.substring(delimiterIndex + 1).trim(), AddMode.DUPLICATE);
-                    }
-                } else if (currentSlangWord != null) {
-                    addEntry(currentSlangWord, line.trim(), AddMode.DUPLICATE);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void saveToFile() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(USER_FILE))) {
-
-            for (Map.Entry<String, List<String>> entry : slangEntries.entrySet()) {
-                if (entry.getValue().isEmpty()) {
-                    continue;
-                }
-
-                writer.write(entry.getKey() + "`");
-
-                writer.write(entry.getValue().get(0));
-                writer.newLine();
-
-                for (int i = 1; i < entry.getValue().size(); i++) {
-                    writer.write("    " + entry.getValue().get(i));
-                    writer.newLine();
-                }
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }
