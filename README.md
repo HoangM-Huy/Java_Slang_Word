@@ -1,3 +1,9 @@
+# Thông tin sinh viên:
+1. Họ và tên: Hoàng Minh Huy
+2. MSSV: 24127278
+3. Lớp học phần: Lập trình ứng dụng Java 24KTPM1
+4. Email: hmhuy2428@clc.fitus.edu.vn
+
 # Java_Slang_Word
 Một ứng dụng Java-Swing giúp người dùng tìm định nghĩa của 1 slang word hoặc ngược lại.
 
